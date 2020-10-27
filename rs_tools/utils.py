@@ -26,4 +26,8 @@ def pandas_to_dict(df, user_col='user_id', item_col='item_id'):
 
 
 def dict_to_pandas(d, key_col='user_id', val_col='item_id'):
-    return pd.DataFrame(d.items(), columns=[key_col, val_col]).explode(val_col).reset_index(drop=True)
+    return (
+        pd.DataFrame(d.items(), columns=[key_col, val_col])
+        .explode(val_col)
+        .reset_index(drop=True)
+    )

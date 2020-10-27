@@ -1,5 +1,4 @@
 from implicit.als import AlternatingLeastSquares
-from tqdm import tqdm
 import numpy as np
 
 from rs_tools.utils import encode, to_csc, dict_to_pandas
@@ -35,24 +34,24 @@ class Wrapper:
         df.loc[:, user_col] = self.ue.transform(df[user_col])
         df.loc[:, item_col] = self.ie.transform(df[item_col])
         user_items = to_csc(df, user_col, item_col, rating_col)
-        res = dict()
-        for user in tqdm(range(user_items.shape[0])):
-            pred = self.model.recommend(
-                user,
-                user_items,
-                k,
-                filter_already_liked_items,
-                filter_items,
-                recalculate_user,
-            )
-            res[user] = pred
         df.loc[:, user_col] = self.ue.inverse_transform(df[user_col])
         df.loc[:, item_col] = self.ie.inverse_transform(df[item_col])
-        res = dict_to_pandas(res, user_col, 'item+score')
-        res.loc[:, item_col] = res.loc[:, 'item+score'].apply(lambda x: x[0])
-        res.loc[:, rating_col] = res.loc[:, 'item+score'].apply(lambda x: x[1])
-        res.drop('item+score', axis=1, inplace=True)
-        return res
+        pred = self.model.recommend_all(
+            user_items, k, recalculate_user, filter_already_liked_items, filter_items
+        )
+        p = self.model.user_factors.dot(self.model.item_factors.T)
+        scores = [p[row][vals].tolist() for row, vals in enumerate(pred)]
+        pred = dict_to_pandas(
+            {user: items for user, items in enumerate(pred)}, user_col, item_col
+        )
+        scores = dict_to_pandas(
+            {user: score for user, score in enumerate(scores)},
+            user_col,
+            val_col=rating_col,
+        )
+        pred[rating_col] = scores[rating_col]
+        pred.loc[:, item_col] = self.ie.inverse_transform(pred[item_col].astype(int))
+        return pred
 
 
 class ALS(Wrapper):

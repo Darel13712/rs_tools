@@ -1,4 +1,3 @@
-
 import setuptools
 
 with open("README.md", "r") as fh:
@@ -6,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="rs_tools",
-    version="0.1",
+    version="0.2",
     author="Darel",
     author_email="darel142857@gmail.com",
     description="Recommender systems related tools",
@@ -14,13 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/darel13712/rs_tools",
     packages=setuptools.find_packages(),
-    install_requires=[
-        'pandas',
-        'numpy',
-        'implicit',
-        'scipy',
-        'sklearn'
-    ],
+    install_requires=['pandas', 'numpy', 'implicit', 'scipy', 'sklearn'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
